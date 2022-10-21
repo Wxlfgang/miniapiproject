@@ -1,0 +1,33 @@
+@using miniapi.Data;
+@using shared.Model;
+@inject ApiService apiService
+
+<div>
+    <br/>
+    <h3>Write a comment</h3>
+    <input placeholder="Author" type="input" @bind-value="comment.Author"/>
+    <input placeholder="Title" type="input" @bind-value="comment.Title"/>
+    <input placeholder="Content" type="input" @bind-value="comment.Content"/>
+
+
+    <button @onclick="() => CreateNewComment(comment)">Post comment</button>
+</div>
+
+@code {
+    private Comment comment = new Comment();
+
+    // PostId is passed in from the parent component. See how in PostItem.razor.
+    [Parameter]
+    public int PostId { get; set; }
+    private void CreateNewComment(Comment comment)
+    {
+        if (comment.Content == null)
+        {
+            return;
+        }
+        // TODO: Provide list of users from dropdown, or maybe just convert
+        // from username to UserId
+        comment.Post_Id = PostId;
+        apiService.postComment(comment); // UserId: 2
+    }
+}

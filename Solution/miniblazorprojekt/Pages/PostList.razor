@@ -1,0 +1,95 @@
+@inherits LayoutComponentBase
+
+@using miniapi.Data;
+@using shared.Model;
+
+@inject ApiService apiService
+
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@if (posts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+        <!-- create post -->
+    <h6><button @onclick="() => openInput()"> Create Post </button></h6>
+    if (isOpen == false){
+
+    }else
+    {
+        <input placeholder="Title" type="input"  @bind-value="post.Title"/>
+        <input placeholder="Author" type="input"  @bind-value="post.Author"/>
+        <input placeholder="Content" type="input"  @bind-value="post.Content"/> 
+        <button @onclick="() => postPost(post)">Post</button>
+    }
+
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Content</th>
+            <th>Date</th>
+            <th colspan="3">Upvotes</th>
+            <th colspan="3">Downvotes</th>
+        </tr>
+
+        @foreach (var post in posts)
+        {
+            <tr>
+                <!-- 
+                    These "a href" links will match the route in the page 'PostItem.razor'.
+                    The route is defined as "/post/{id}" and the id is the post id.
+                -->
+                <td><a href= "/api/posts/@post.Id">@post.Title</a></td>
+                <td>@post.Author</td>
+                <td>@post.Content</td>
+                <td>@post.Date</td>
+                <td>@post.Upvote</td>
+                <td><button @onclick="() => Upvote(post.Id)">Upvote</button></td>
+                <td>@post.Downvote</td>
+                <td><button @onclick="() => Downvote(post.Id)">Downvote</button></td>
+            </tr>
+        }
+    </table>
+
+    <br/>
+}
+
+@code {
+    private Post[]? posts;
+    private Post? votePost;
+    private Post post = new Post();
+    private bool isOpen = false;
+    protected override async Task OnInitializedAsync()
+    {
+        posts = await apiService.GetPost();
+    }
+
+    private void Upvote(int id)
+    {
+        apiService.UpvotePost(id);
+    }
+    private void Downvote(int id)
+    {
+        apiService.DownvotePost(id);
+    }
+    
+    private  void postPost(Post post)
+    {
+      apiService.postPost(post);
+      openInput();
+    }
+    private void openInput()
+    {
+        if (isOpen == false){
+            isOpen = true;
+        }
+        else
+        {
+            isOpen = false;
+        }
+    }
+}
